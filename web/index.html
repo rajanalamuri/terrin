@@ -800,7 +800,11 @@ function sub(e){
   m.style.color='rgba(255,255,255,.5)';
   e.target.style.opacity='.4';
   e.target.style.pointerEvents='none';
-  // fetch('https://formspree.io/f/YOUR_ID',{method:'POST',body:JSON.stringify({email:em}),headers:{'Content-Type':'application/json'}})
+  fetch('https://formspree.io/f/meebrvnv', {
+  method:'POST',
+  body:JSON.stringify({email:em, type:currentTab}),
+  headers:{'Content-Type':'application/json'}
+})
 }
 document.querySelectorAll('a[href^="#"]').forEach(a=>{
   a.addEventListener('click',e=>{
