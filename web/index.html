@@ -288,6 +288,42 @@ section{padding:96px 0}
 .dc-u{font-size:12px;color:var(--muted);font-weight:300}
 .spark{margin-top:16px}
 
+/* COMPARISON TABLE */
+.cmp-bg{background:var(--ink);padding:96px 0}
+.cmp-intro{font-size:16px;color:rgba(255,255,255,.38);line-height:1.8;font-weight:300;max-width:520px;margin-bottom:52px}
+.cmp-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.cmp-table{width:100%;border-collapse:collapse;min-width:700px}
+.cmp-table th{
+  padding:14px 18px;text-align:left;
+  font-size:10px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;
+  color:rgba(255,255,255,.28);border-bottom:1px solid rgba(255,255,255,.06);
+}
+.cmp-table th.terrin-col{color:var(--sensor2)}
+.cmp-table td{
+  padding:14px 18px;font-size:13px;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  color:rgba(255,255,255,.5);vertical-align:top;line-height:1.5;
+}
+.cmp-table td.feature-col{
+  font-size:12px;font-weight:500;
+  color:rgba(255,255,255,.35);
+  white-space:nowrap;width:160px;
+}
+.cmp-table td.terrin-col{
+  color:rgba(255,255,255,.88);font-weight:400;
+  background:rgba(212,136,42,.06);
+  border-left:1px solid rgba(212,136,42,.15);
+  border-right:1px solid rgba(212,136,42,.15);
+}
+.cmp-table tr:first-child td.terrin-col{border-top:1px solid rgba(212,136,42,.15)}
+.cmp-table tr:last-child td.terrin-col{border-bottom:1px solid rgba(212,136,42,.15)}
+.cmp-table tr:hover td{background:rgba(255,255,255,.02)}
+.cmp-table tr:hover td.terrin-col{background:rgba(212,136,42,.09)}
+.tick{color:#4caf82;font-size:14px}
+.cross{color:rgba(255,255,255,.2);font-size:14px}
+.part{color:var(--sensor2);font-size:13px}
+.cmp-note{margin-top:20px;font-size:11px;color:rgba(255,255,255,.2);line-height:1.7}
+
 /* WAITLIST */
 .wl-bg{background:var(--leaf);padding:96px 0;text-align:center}
 .wl-h2{
@@ -387,6 +423,7 @@ footer{
     <a href="#what" class="nav-link">Technology</a>
     <a href="#how" class="nav-link">How it works</a>
     <a href="#alerts" class="nav-link">Delivery</a>
+    <a href="#compare" class="nav-link">Compare</a>
     <a href="#waitlist" class="nav-cta">Early access</a>
   </div>
 </nav>
@@ -397,7 +434,7 @@ footer{
     <div class="hero-left">
       <div class="hero-badge">
         <span class="hero-badge-dot"></span>
-        In development · United Kingdom 
+        In development · London &amp; India
       </div>
       <h1 class="hero-h1">Field intelligence<br>delivered <span>quietly.</span></h1>
       <p class="hero-sub">Terrin monitors your crops continuously — tracking temperature, soil moisture, and early disease — and sends you what matters through the channels you already use.</p>
@@ -748,6 +785,133 @@ footer{
   </div>
 </section>
 
+<!-- COMPARISON TABLE -->
+<section id="compare" class="cmp-bg">
+  <div class="wrap">
+    <span class="label" style="color:rgba(240,168,60,.6)">How it compares</span>
+    <h2 class="h2" style="color:#fff">Against other farm monitoring methods</h2>
+    <p class="cmp-intro">Every approach to farm monitoring has a different set of trade-offs. Here is how Terrin sits against the tools farmers and agronomists currently use.</p>
+    <div class="cmp-wrap">
+      <table class="cmp-table" role="table" aria-label="Comparison of Terrin against other farm monitoring methods">
+        <thead>
+          <tr>
+            <th style="width:160px"></th>
+            <th class="terrin-col">Terrin</th>
+            <th>Satellite imagery</th>
+            <th>Drones / UAVs</th>
+            <th>Stationary IoT</th>
+            <th>Manual scouting</th>
+            <th>Farm weather station</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="feature-col">Works between crop rows</td>
+            <td class="terrin-col"><span class="tick">✓</span> Ground level</td>
+            <td><span class="cross">✗</span> Aerial only</td>
+            <td><span class="cross">✗</span> Flies over</td>
+            <td><span class="cross">✗</span> Fixed point</td>
+            <td><span class="tick">✓</span> With labour</td>
+            <td><span class="cross">✗</span> Fixed pole</td>
+          </tr>
+          <tr>
+            <td class="feature-col">Continuous monitoring</td>
+            <td class="terrin-col"><span class="tick">✓</span> 24 / 7</td>
+            <td><span class="part">~</span> Every 3–5 days</td>
+            <td><span class="cross">✗</span> Flight by flight</td>
+            <td><span class="tick">✓</span> Fixed location</td>
+            <td><span class="cross">✗</span> When visited</td>
+            <td><span class="tick">✓</span> Weather only</td>
+          </tr>
+          <tr>
+            <td class="feature-col">Crop disease detection</td>
+            <td class="terrin-col"><span class="tick">✓</span> AI leaf scan</td>
+            <td><span class="part">~</span> NDVI stress only</td>
+            <td><span class="tick">✓</span> Multispectral</td>
+            <td><span class="cross">✗</span> No camera</td>
+            <td><span class="tick">✓</span> Expert eye</td>
+            <td><span class="cross">✗</span> No</td>
+          </tr>
+          <tr>
+            <td class="feature-col">Soil moisture</td>
+            <td class="terrin-col"><span class="tick">✓</span> Row by row</td>
+            <td><span class="part">~</span> Broad estimates</td>
+            <td><span class="cross">✗</span> No</td>
+            <td><span class="tick">✓</span> One point only</td>
+            <td><span class="part">~</span> Manual probe</td>
+            <td><span class="cross">✗</span> No</td>
+          </tr>
+          <tr>
+            <td class="feature-col">Temperature + humidity</td>
+            <td class="terrin-col"><span class="tick">✓</span> In-canopy</td>
+            <td><span class="cross">✗</span> No</td>
+            <td><span class="cross">✗</span> No</td>
+            <td><span class="tick">✓</span> Fixed location</td>
+            <td><span class="cross">✗</span> No</td>
+            <td><span class="tick">✓</span> Ambient only</td>
+          </tr>
+          <tr>
+            <td class="feature-col">Works in narrow rows</td>
+            <td class="terrin-col"><span class="tick">✓</span> &lt; 25 cm gap</td>
+            <td><span class="tick">✓</span> No restriction</td>
+            <td><span class="cross">✗</span> Can't navigate</td>
+            <td><span class="tick">✓</span> If placed</td>
+            <td><span class="tick">✓</span> With care</td>
+            <td><span class="tick">✓</span> Edge of field</td>
+          </tr>
+          <tr>
+            <td class="feature-col">Delivers via WhatsApp</td>
+            <td class="terrin-col"><span class="tick">✓</span> Instant alert</td>
+            <td><span class="cross">✗</span> Dashboard only</td>
+            <td><span class="cross">✗</span> App required</td>
+            <td><span class="part">~</span> Some platforms</td>
+            <td><span class="cross">✗</span> Manual report</td>
+            <td><span class="part">~</span> SMS on some</td>
+          </tr>
+          <tr>
+            <td class="feature-col">No app required</td>
+            <td class="terrin-col"><span class="tick">✓</span> WhatsApp / SMS</td>
+            <td><span class="cross">✗</span> Portal login</td>
+            <td><span class="cross">✗</span> Pilot app</td>
+            <td><span class="cross">✗</span> Dashboard</td>
+            <td><span class="tick">✓</span></td>
+            <td><span class="cross">✗</span> Dashboard</td>
+          </tr>
+          <tr>
+            <td class="feature-col">Solar powered</td>
+            <td class="terrin-col"><span class="tick">✓</span> Self-charging</td>
+            <td><span class="tick">✓</span> Satellite</td>
+            <td><span class="cross">✗</span> Battery flights</td>
+            <td><span class="part">~</span> Some models</td>
+            <td><span class="tick">✓</span> No power needed</td>
+            <td><span class="part">~</span> Some models</td>
+          </tr>
+          <tr>
+            <td class="feature-col">Affordable for smallholders</td>
+            <td class="terrin-col"><span class="tick">✓</span> Designed for smallholders</td>
+            <td><span class="tick">✓</span> Free tiers</td>
+            <td><span class="cross">✗</span> £500 – £50k</td>
+            <td><span class="part">~</span> £20 – £200 each</td>
+            <td><span class="tick">✓</span> Labour cost</td>
+            <td><span class="cross">✗</span> £300 – £2k</td>
+          </tr>
+          <tr>
+            <td class="feature-col">Verified data for insurance</td>
+            <td class="terrin-col"><span class="tick">✓</span> Timestamped, geotagged</td>
+            <td><span class="part">~</span> Limited ground truth</td>
+            <td><span class="part">~</span> Flight logs only</td>
+            <td><span class="part">~</span> Fixed point only</td>
+            <td><span class="cross">✗</span> Not verifiable</td>
+            <td><span class="part">~</span> Weather records</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+    <p class="cmp-note">✓ Supported &nbsp;·&nbsp; ~ Partial or limited &nbsp;·&nbsp; ✗ Not supported &nbsp;·&nbsp; Terrin is currently in development. Specifications subject to change.</p>
+  </div>
+</section>
+
 <!-- WAITLIST -->
 <section id="waitlist" class="wl-bg">
   <div class="wrap">
@@ -785,7 +949,7 @@ footer{
   </div>
   <div class="f-links">
     <a href="mailto:raj@terrin.org" class="f-link">raj@terrin.org</a>
-    <a href="https://www.linkedin.com/in/raj-alamuri-029943341/" class="f-link" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://linkedin.com/in/rajalamuri" class="f-link" target="_blank" rel="noopener">LinkedIn</a>
   </div>
   <span class="f-copy">Terrin Ltd · London, UK · 2025</span>
 </footer>
@@ -800,11 +964,7 @@ function sub(e){
   m.style.color='rgba(255,255,255,.5)';
   e.target.style.opacity='.4';
   e.target.style.pointerEvents='none';
-  fetch('https://formspree.io/f/meebrvnv', {
-  method:'POST',
-  body:JSON.stringify({email:em, type:currentTab}),
-  headers:{'Content-Type':'application/json'}
-})
+  // fetch('https://formspree.io/f/YOUR_ID',{method:'POST',body:JSON.stringify({email:em}),headers:{'Content-Type':'application/json'}})
 }
 document.querySelectorAll('a[href^="#"]').forEach(a=>{
   a.addEventListener('click',e=>{
