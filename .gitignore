@@ -1,0 +1,7 @@
+# .gitignore — critical entries
+__pycache__/
+*.pyc
+.env             # never commit secrets
+data/db/*.db    # SQLite files stay local
+ml/data/raw/    # large image datasets
+.DS_Store

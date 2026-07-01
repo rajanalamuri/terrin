@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terrin — Farm Intelligence</title>
+<meta name="description" content="Terrin is crop sensing infrastructure. A solar-powered ground device that monitors your fields continuously and delivers intelligence through the channels you already use.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f1a0f;
+  --ink2:#2a3a2a;
+  --leaf:#1a4a28;
+  --leaf2:#22633a;
+  --sensor:#d4882a;
+  --sensor2:#f0a83c;
+  --stone:#f4f2ee;
+  --stone2:#e8e4dc;
+  --stone3:#d8d2c6;
+  --mist:#f9f8f6;
+  --white:#ffffff;
+  --muted:#7a7a6e;
+  --muted2:#5a5a50;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--mist);color:var(--ink);font-size:16px;line-height:1.6;overflow-x:hidden}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;height:64px;
+  background:rgba(249,248,246,.96);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(0,0,0,.06);
+}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-wordmark{
+  font-family:'Inter',sans-serif;font-weight:600;
+  font-size:15px;letter-spacing:.5px;color:var(--ink);
+}
+.nav-tagline{
+  font-size:11px;color:var(--muted);
+  border-left:1px solid var(--stone3);
+  padding-left:10px;margin-left:2px;
+  font-weight:400;letter-spacing:.2px;
+}
+.nav-right{display:flex;align-items:center;gap:32px}
+.nav-link{font-size:13px;font-weight:400;color:var(--muted2);text-decoration:none;transition:color .15s}
+.nav-link:hover{color:var(--ink)}
+.nav-cta{
+  font-size:13px;font-weight:500;
+  background:var(--ink);color:#fff;
+  padding:8px 18px;border-radius:6px;
+  text-decoration:none;transition:background .15s;
+}
+.nav-cta:hover{background:var(--ink2)}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  background:var(--ink);
+  display:flex;flex-direction:column;
+  padding-top:64px;
+  position:relative;overflow:hidden;
+}
+.hero-inner{
+  flex:1;display:flex;align-items:center;
+  padding:80px 48px 260px;
+  max-width:1200px;margin:0 auto;width:100%;
+  position:relative;z-index:2;
+}
+.hero-left{max-width:580px}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:500;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--sensor2);
+  border:1px solid rgba(240,168,60,.2);
+  padding:5px 12px;border-radius:4px;
+  margin-bottom:28px;
+}
+.hero-badge-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--sensor2);
+  animation:blink 2s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@media(prefers-reduced-motion:reduce){.hero-badge-dot{animation:none}}
+.hero-h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(40px,5.5vw,68px);
+  color:#fff;line-height:1.08;
+  font-weight:400;
+  margin-bottom:24px;
+  letter-spacing:-.5px;
+}
+.hero-h1 span{color:var(--sensor2);font-style:italic}
+.hero-sub{
+  font-size:clamp(15px,1.6vw,17px);
+  color:rgba(255,255,255,.45);
+  line-height:1.75;font-weight:300;
+  max-width:460px;margin-bottom:40px;
+}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.btn-primary{
+  font-size:14px;font-weight:500;
+  background:var(--sensor);color:#fff;
+  padding:12px 24px;border-radius:6px;
+  text-decoration:none;transition:background .15s;
+  display:inline-block;
+}
+.btn-primary:hover{background:var(--sensor2)}
+.btn-ghost{
+  font-size:14px;font-weight:400;
+  color:rgba(255,255,255,.5);
+  text-decoration:none;
+  display:flex;align-items:center;gap:6px;
+  transition:color .15s;
+}
+.btn-ghost:hover{color:rgba(255,255,255,.8)}
+.btn-ghost svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.5;fill:none}
+
+/* hero right — creature -->
+.hero-right{
+  flex:1;display:flex;align-items:center;justify-content:flex-end;
+  padding-left:48px;
+}
+.hero-creature-wrap{
+  width:280px;height:280px;
+  position:relative;
+  flex-shrink:0;
+}
+.creature-glow{
+  position:absolute;inset:20px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(212,136,42,.12) 0%,transparent 70%);
+}
+@media(max-width:860px){.hero-right{display:none}}
+
+/* SOIL SCENE */
+.soil-scene{position:absolute;bottom:0;left:0;right:0;height:240px;pointer-events:none}
+.sg{position:absolute;bottom:202px;left:0;right:0}
+.st{position:absolute;bottom:140px;left:0;right:0;height:64px;background:#1e0e04}
+.ss{position:absolute;bottom:90px;left:0;right:0;height:52px;background:#2a1408}
+.sc{position:absolute;bottom:48px;left:0;right:0;height:44px;background:#3a1e0c}
+.sd{position:absolute;bottom:0;left:0;right:0;height:50px;background:#4a2810}
+.soil-creature{
+  position:absolute;bottom:158px;
+  left:calc(50% - 45px);
+  width:90px;height:90px;
+  animation:walk 22s ease-in-out infinite alternate;
+}
+@keyframes walk{0%{transform:translateX(-200px)}100%{transform:translateX(200px)}}
+@media(prefers-reduced-motion:reduce){.soil-creature{animation:none}}
+
+/* ── LOGOS / TRUST BAR ── */
+.trust{
+  background:var(--white);
+  border-bottom:1px solid rgba(0,0,0,.06);
+  padding:20px 48px;
+  display:flex;align-items:center;gap:0;
+}
+.trust-label{
+  font-size:11px;font-weight:500;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--stone3);white-space:nowrap;margin-right:36px;flex-shrink:0;
+}
+.trust-items{
+  display:flex;align-items:center;gap:40px;flex-wrap:wrap;
+}
+.trust-item{
+  font-size:13px;font-weight:500;color:var(--stone3);
+  letter-spacing:.3px;white-space:nowrap;
+}
+
+/* ── SECTIONS ── */
+.wrap{max-width:1160px;margin:0 auto;padding:0 48px}
+section{padding:96px 0}
+.label{
+  font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--leaf2);margin-bottom:14px;display:block;
+}
+.h2{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(28px,3.2vw,42px);
+  color:var(--ink);line-height:1.15;
+  font-weight:400;margin-bottom:18px;letter-spacing:-.3px;
+}
+.body-text{
+  font-size:16px;color:var(--muted2);
+  line-height:1.8;font-weight:300;max-width:560px;
+}
+.body-text+.body-text{margin-top:14px}
+
+/* WHAT IT IS */
+.what-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+@media(max-width:720px){.what-grid{grid-template-columns:1fr;gap:40px}}
+
+/* soil diagram — clean, architectural */
+.diag{
+  border-radius:4px;overflow:hidden;
+  border:1px solid rgba(0,0,0,.08);
+  background:#0f1a0f;
+  aspect-ratio:4/3;position:relative;
+}
+.dl{position:absolute;left:0;right:0}
+.dl.sky{top:0;height:12%;background:#0f2233}
+.dl.grs{top:12%;height:5%;background:#1a4a20}
+.dl.top{top:17%;height:27%;background:#1e0e04}
+.dl.sub{top:44%;height:20%;background:#2a1408}
+.dl.clay{top:64%;height:18%;background:#3a1e0c}
+.dl.bed{top:82%;height:18%;background:#4a2810}
+.dl-lbl{
+  position:absolute;left:14px;
+  font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;
+  font-family:'Inter',sans-serif;
+}
+.dl-lbl.sky{top:3%;color:rgba(120,180,220,.4)}
+.dl-lbl.grs{top:13%;color:rgba(60,180,80,.45)}
+.dl-lbl.top{top:24%;color:rgba(240,168,60,.55)}
+.dl-lbl.sub{top:48%;color:rgba(180,140,100,.3)}
+.dl-lbl.clay{top:68%;color:rgba(180,140,100,.25)}
+.dl-lbl.bed{top:86%;color:rgba(180,140,100,.2)}
+.diag-roots{position:absolute;top:17%;left:0;right:0;bottom:0;overflow:hidden}
+.diag-sensor{
+  position:absolute;top:22%;left:50%;transform:translateX(-50%);
+  width:18px;height:18px;border-radius:50%;background:var(--sensor);
+  box-shadow:0 0 0 5px rgba(212,136,42,.15),0 0 0 10px rgba(212,136,42,.07);
+}
+
+/* HOW */
+.how-bg{background:var(--ink)}
+.steps{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:1px;margin-top:52px;
+  border:1px solid rgba(255,255,255,.04);border-radius:4px;overflow:hidden;
+}
+.step{background:#141e14;padding:32px 28px}
+.step-n{
+  font-family:'Playfair Display',serif;
+  font-size:36px;color:rgba(212,136,42,.15);
+  line-height:1;margin-bottom:18px;font-weight:400;
+}
+.step-t{font-size:14px;font-weight:500;color:#fff;margin-bottom:10px;letter-spacing:.1px}
+.step-b{font-size:13px;color:rgba(255,255,255,.38);line-height:1.75;font-weight:300}
+
+/* ALERT SECTION */
+.alert-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;margin-top:52px}
+@media(max-width:720px){.alert-grid{grid-template-columns:1fr;gap:40px}}
+.alert-text h3{
+  font-family:'Playfair Display',serif;
+  font-size:24px;font-weight:400;
+  color:var(--ink);margin-bottom:14px;letter-spacing:-.2px;
+}
+.alert-text p{font-size:14px;color:var(--muted2);line-height:1.85;font-weight:300}
+.alert-text p+p{margin-top:12px}
+
+/* phone */
+.phone-wrap{display:flex;justify-content:center}
+.phone{
+  width:268px;background:#111b21;
+  border-radius:18px;padding:10px;
+  font-family:-apple-system,'Segoe UI',sans-serif;
+  border:1px solid rgba(255,255,255,.04);
+}
+.ph-hdr{display:flex;align-items:center;gap:9px;padding:6px 4px 10px;border-bottom:.5px solid rgba(255,255,255,.05);margin-bottom:10px}
+.ph-av{
+  width:34px;height:34px;border-radius:50%;
+  background:#1e4228;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.ph-name{font-size:13px;font-weight:500;color:#e9edef}
+.ph-sub{font-size:10px;color:#8696a0;margin-top:1px}
+.bubble{background:#025144;border-radius:8px 8px 8px 2px;padding:10px 12px;margin-bottom:3px;max-width:230px}
+.bt{font-size:12px;color:#e9edef;line-height:1.65}
+.bt strong{color:var(--sensor2)}
+.btime{font-size:10px;color:#8696a0;text-align:right;margin-top:4px}
+.bimg{background:#1a2933;border-radius:8px 8px 8px 2px;width:196px;height:108px;display:flex;align-items:center;justify-content:center;margin-bottom:3px;overflow:hidden}
+
+/* DATA SECTION */
+.data-bg{background:var(--stone)}
+.data-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;margin-top:48px;border:1px solid var(--stone3);border-radius:4px;overflow:hidden}
+.dc{background:var(--white);padding:28px 24px}
+.dc-l{font-size:10px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:var(--stone3);margin-bottom:10px}
+.dc-v{font-family:'Playfair Display',serif;font-size:40px;color:var(--ink);line-height:1;margin-bottom:4px;font-weight:400}
+.dc-u{font-size:12px;color:var(--muted);font-weight:300}
+.spark{margin-top:16px}
+
+/* WAITLIST */
+.wl-bg{background:var(--leaf);padding:96px 0;text-align:center}
+.wl-h2{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(30px,4vw,48px);color:#fff;
+  margin-bottom:14px;font-weight:400;letter-spacing:-.3px;
+}
+.wl-sub{
+  font-size:15px;color:rgba(255,255,255,.5);font-weight:300;
+  margin-bottom:40px;max-width:400px;margin-left:auto;margin-right:auto;
+  line-height:1.75;
+}
+.wl-form{
+  display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+  max-width:420px;margin:0 auto 14px;
+}
+.wl-in{
+  flex:1;min-width:200px;
+  padding:11px 16px;border-radius:6px;
+  border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.07);
+  color:#fff;font-family:'Inter',sans-serif;
+  font-size:14px;outline:none;transition:border-color .15s;
+}
+.wl-in::placeholder{color:rgba(255,255,255,.28)}
+.wl-in:focus{border-color:rgba(212,136,42,.5)}
+.wl-btn{
+  padding:11px 22px;background:var(--sensor);color:#fff;
+  border:none;border-radius:6px;font-family:'Inter',sans-serif;
+  font-size:14px;font-weight:500;cursor:pointer;transition:background .15s;
+}
+.wl-btn:hover{background:var(--sensor2)}
+.wl-note{font-size:12px;color:rgba(255,255,255,.25)}
+
+/* FOOTER */
+footer{
+  background:var(--ink);
+  padding:36px 48px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;
+}
+.f-left{display:flex;align-items:center;gap:10px}
+.f-word{font-size:13px;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:.3px}
+.f-sep{color:rgba(255,255,255,.1);margin:0 4px}
+.f-tag{font-size:11px;color:rgba(255,255,255,.2);font-weight:300}
+.f-links{display:flex;gap:20px}
+.f-link{font-size:12px;color:rgba(255,255,255,.22);text-decoration:none;transition:color .15s}
+.f-link:hover{color:rgba(255,255,255,.6)}
+.f-copy{font-size:11px;color:rgba(255,255,255,.12)}
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  nav{padding:0 20px}
+  .nav-right .nav-link,.nav-tagline{display:none}
+  .hero-inner{padding:60px 20px 260px}
+  .wrap{padding:0 20px}
+  section{padding:64px 0}
+  .trust{padding:16px 20px}
+  footer{padding:28px 20px;flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo" aria-label="Terrin home">
+    <svg width="28" height="28" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+      <ellipse cx="60" cy="66" rx="38" ry="30" fill="#1a4a28"/>
+      <ellipse cx="61" cy="71" rx="24" ry="18" fill="#22633a"/>
+      <path d="M34 54 Q46 38 60 34 Q74 38 86 54" fill="#0f2a18"/>
+      <path d="M36 71 Q60 65 84 71" fill="none" stroke="#0f2a18" stroke-width="1" opacity="0.5"/>
+      <path d="M60 34 Q52 20 44 16 Q50 24 56 28 Q52 18 60 14 Q68 18 64 28 Q70 24 76 16 Q68 20 60 34Z" fill="#22633a"/>
+      <path d="M24 58 Q14 62 10 69" fill="none" stroke="#124020" stroke-width="5.5" stroke-linecap="round"/>
+      <path d="M20 74 Q9 78 6 87" fill="none" stroke="#124020" stroke-width="5.5" stroke-linecap="round"/>
+      <circle cx="10" cy="69" r="4" fill="#0a2010"/>
+      <circle cx="6" cy="87" r="4" fill="#0a2010"/>
+      <path d="M96 58 Q106 62 110 69" fill="none" stroke="#124020" stroke-width="5.5" stroke-linecap="round"/>
+      <path d="M100 74 Q111 78 114 87" fill="none" stroke="#124020" stroke-width="5.5" stroke-linecap="round"/>
+      <circle cx="110" cy="69" r="4" fill="#0a2010"/>
+      <circle cx="114" cy="87" r="4" fill="#0a2010"/>
+      <circle cx="46" cy="58" r="10" fill="#f4f2ee" opacity="0.9"/>
+      <circle cx="48" cy="57" r="6.5" fill="#0a100a"/>
+      <circle cx="50" cy="55" r="2" fill="#f4f2ee" opacity="0.7"/>
+      <circle cx="74" cy="56" r="11" fill="#c47820"/>
+      <circle cx="74" cy="56" r="6" fill="#1a0e00"/>
+      <circle cx="72" cy="53" r="2.5" fill="#f0a83c" opacity="0.6"/>
+      <circle cx="69" cy="51" r="1.5" fill="#fff" opacity="0.4"/>
+      <path d="M71 34 Q78 20 82 12" fill="none" stroke="#22633a" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="83" cy="10" r="4" fill="#d4882a" opacity="0.9"/>
+      <circle cx="83" cy="10" r="1.8" fill="#c47820"/>
+    </svg>
+    <span class="nav-wordmark">Terrin</span>
+    <span class="nav-tagline">Farm Intelligence</span>
+  </a>
+  <div class="nav-right">
+    <a href="#what" class="nav-link">Technology</a>
+    <a href="#how" class="nav-link">How it works</a>
+    <a href="#alerts" class="nav-link">Delivery</a>
+    <a href="#waitlist" class="nav-cta">Early access</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" aria-label="Introduction">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        In development · London &amp; India
+      </div>
+      <h1 class="hero-h1">Field intelligence<br>delivered <span>quietly.</span></h1>
+      <p class="hero-sub">Terrin monitors your crops continuously — tracking temperature, soil moisture, and early disease — and sends you what matters through the channels you already use.</p>
+      <div class="hero-actions">
+        <a href="#waitlist" class="btn-primary">Request early access</a>
+        <a href="#what" class="btn-ghost">
+          Learn how it works
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-creature-wrap" aria-hidden="true">
+        <div class="creature-glow"></div>
+        <svg width="280" height="280" viewBox="0 0 120 120" fill="none">
+          <ellipse cx="60" cy="66" rx="44" ry="34" fill="#1a4a28"/>
+          <ellipse cx="61" cy="72" rx="28" ry="21" fill="#22633a"/>
+          <path d="M28 52 Q42 34 60 30 Q78 34 92 52" fill="#0f2a18"/>
+          <path d="M32 72 Q60 66 88 72" fill="none" stroke="#0f2a18" stroke-width="1.2" opacity="0.5"/>
+          <path d="M60 30 Q50 14 40 10 Q48 20 55 25 Q50 13 60 8 Q70 13 65 25 Q72 20 80 10 Q70 14 60 30Z" fill="#22633a"/>
+          <path d="M60 30 Q59 18 60 8" fill="none" stroke="#1a4a28" stroke-width="0.8" opacity="0.5" stroke-linecap="round"/>
+          <path d="M18 56 Q6 61 2 69" fill="none" stroke="#124020" stroke-width="6" stroke-linecap="round"/>
+          <path d="M14 74 Q2 79 0 89" fill="none" stroke="#124020" stroke-width="6" stroke-linecap="round"/>
+          <path d="M18 84 Q7 90 5 100" fill="none" stroke="#124020" stroke-width="5.5" stroke-linecap="round"/>
+          <circle cx="2" cy="69" r="4.5" fill="#0a2010"/>
+          <circle cx="0" cy="89" r="4.5" fill="#0a2010"/>
+          <circle cx="5" cy="100" r="4" fill="#0a2010"/>
+          <path d="M102 56 Q114 61 118 69" fill="none" stroke="#124020" stroke-width="6" stroke-linecap="round"/>
+          <path d="M106 74 Q118 79 120 89" fill="none" stroke="#124020" stroke-width="6" stroke-linecap="round"/>
+          <path d="M102 84 Q113 90 115 100" fill="none" stroke="#124020" stroke-width="5.5" stroke-linecap="round"/>
+          <circle cx="118" cy="69" r="4.5" fill="#0a2010"/>
+          <circle cx="120" cy="89" r="4.5" fill="#0a2010"/>
+          <circle cx="115" cy="100" r="4" fill="#0a2010"/>
+          <circle cx="44" cy="54" r="12" fill="#f4f2ee" opacity="0.9"/>
+          <circle cx="47" cy="53" r="7.5" fill="#0a100a"/>
+          <circle cx="50" cy="50" r="2.5" fill="#f4f2ee" opacity="0.7"/>
+          <circle cx="78" cy="52" r="14" fill="#f4f2ee" opacity="0.08"/>
+          <circle cx="78" cy="52" r="13" fill="#c47820"/>
+          <circle cx="78" cy="52" r="7.5" fill="#1a0e00"/>
+          <circle cx="75" cy="48" r="3" fill="#f0a83c" opacity="0.6"/>
+          <circle cx="71" cy="46" r="1.8" fill="#fff" opacity="0.4"/>
+          <path d="M75 30 Q84 14 89 6" fill="none" stroke="#22633a" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="90" cy="4" r="5" fill="#d4882a" opacity="0.9"/>
+          <circle cx="90" cy="4" r="2.2" fill="#c47820"/>
+          <ellipse cx="34" cy="40" rx="6" ry="8" fill="#b8d8f0" opacity="0.35"/>
+          <ellipse cx="32" cy="36" rx="2.8" ry="4" fill="#fff" opacity="0.3"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- soil scene -->
+  <div class="soil-scene" aria-hidden="true">
+    <div class="sg">
+      <svg width="100%" height="22" viewBox="0 0 1440 22" preserveAspectRatio="none" fill="none">
+        <g stroke-linecap="round">
+          <path d="M20 22Q21 11 22 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M46 22Q48 7 50 22" stroke="#1a4a28" stroke-width="2.2"/>
+          <path d="M74 22Q75 13 77 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M100 22Q102 5 105 22" stroke="#1a4a28" stroke-width="2.4"/>
+          <path d="M130 22Q131 12 133 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M156 22Q158 8 161 22" stroke="#1a4a28" stroke-width="2.2"/>
+          <path d="M184 22Q185 14 187 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M212 22Q214 5 217 22" stroke="#1a4a28" stroke-width="2.4"/>
+          <path d="M242 22Q243 12 245 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M268 22Q270 8 273 22" stroke="#1a4a28" stroke-width="2.2"/>
+          <path d="M296 22Q297 14 299 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M324 22Q326 5 329 22" stroke="#1a4a28" stroke-width="2.4"/>
+          <path d="M354 22Q355 12 357 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M380 22Q382 8 385 22" stroke="#1a4a28" stroke-width="2.2"/>
+          <path d="M408 22Q409 14 411 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M436 22Q438 5 441 22" stroke="#1a4a28" stroke-width="2.4"/>
+          <path d="M466 22Q467 12 469 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M492 22Q494 8 497 22" stroke="#1a4a28" stroke-width="2.2"/>
+          <path d="M520 22Q521 14 523 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M548 22Q550 5 553 22" stroke="#1a4a28" stroke-width="2.4"/>
+          <path d="M578 22Q579 12 581 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M604 22Q606 8 609 22" stroke="#1a4a28" stroke-width="2.2"/>
+          <path d="M632 22Q633 14 635 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M660 22Q662 5 665 22" stroke="#1a4a28" stroke-width="2.4"/>
+          <path d="M690 22Q691 12 693 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M716 22Q718 8 721 22" stroke="#1a4a28" stroke-width="2.2"/>
+          <path d="M744 22Q745 14 747 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M772 22Q774 5 777 22" stroke="#1a4a28" stroke-width="2.4"/>
+          <path d="M802 22Q803 12 805 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M828 22Q830 8 833 22" stroke="#1a4a28" stroke-width="2.2"/>
+          <path d="M856 22Q857 14 859 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M884 22Q886 5 889 22" stroke="#1a4a28" stroke-width="2.4"/>
+          <path d="M914 22Q915 12 917 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M940 22Q942 8 945 22" stroke="#1a4a28" stroke-width="2.2"/>
+          <path d="M968 22Q969 14 971 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M996 22Q998 5 1001 22" stroke="#1a4a28" stroke-width="2.4"/>
+          <path d="M1026 22Q1027 12 1029 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M1052 22Q1054 8 1057 22" stroke="#1a4a28" stroke-width="2.2"/>
+          <path d="M1080 22Q1081 14 1083 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M1108 22Q1110 5 1113 22" stroke="#1a4a28" stroke-width="2.4"/>
+          <path d="M1138 22Q1139 12 1141 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M1164 22Q1166 8 1169 22" stroke="#1a4a28" stroke-width="2.2"/>
+          <path d="M1192 22Q1193 14 1195 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M1220 22Q1222 5 1225 22" stroke="#1a4a28" stroke-width="2.4"/>
+          <path d="M1250 22Q1251 12 1253 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M1276 22Q1278 8 1281 22" stroke="#1a4a28" stroke-width="2.2"/>
+          <path d="M1304 22Q1305 14 1307 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M1332 22Q1334 5 1337 22" stroke="#1a4a28" stroke-width="2.4"/>
+          <path d="M1362 22Q1363 12 1365 22" stroke="#22633a" stroke-width="2"/>
+          <path d="M1388 22Q1390 8 1393 22" stroke="#1a4a28" stroke-width="2.2"/>
+          <path d="M1416 22Q1417 14 1419 22" stroke="#22633a" stroke-width="2"/>
+        </g>
+      </svg>
+    </div>
+    <div class="st"></div>
+    <div class="ss"></div>
+    <div class="sc"></div>
+    <div class="sd"></div>
+    <!-- animated creature in soil -->
+    <div class="soil-creature" aria-hidden="true">
+      <svg width="90" height="90" viewBox="0 0 120 120" fill="none">
+        <path d="M58 90 Q56 102 54 110" fill="none" stroke="#3a1e0c" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+        <path d="M62 90 Q64 102 66 110" fill="none" stroke="#3a1e0c" stroke-width="1.2" stroke-linecap="round" opacity="0.35"/>
+        <ellipse cx="60" cy="66" rx="38" ry="30" fill="#1a4a28"/>
+        <ellipse cx="61" cy="71" rx="24" ry="18" fill="#22633a"/>
+        <path d="M34 54 Q46 38 60 34 Q74 38 86 54" fill="#0f2a18"/>
+        <path d="M36 71 Q60 65 84 71" fill="none" stroke="#0f2a18" stroke-width="1" opacity="0.5"/>
+        <path d="M60 34 Q52 20 44 16 Q50 24 56 28 Q52 18 60 14 Q68 18 64 28 Q70 24 76 16 Q68 20 60 34Z" fill="#22633a"/>
+        <path d="M24 58 Q14 62 10 69" fill="none" stroke="#124020" stroke-width="5.5" stroke-linecap="round"/>
+        <path d="M20 74 Q9 78 6 87" fill="none" stroke="#124020" stroke-width="5.5" stroke-linecap="round"/>
+        <circle cx="10" cy="69" r="4" fill="#0a2010"/>
+        <circle cx="6" cy="87" r="4" fill="#0a2010"/>
+        <path d="M96 58 Q106 62 110 69" fill="none" stroke="#124020" stroke-width="5.5" stroke-linecap="round"/>
+        <path d="M100 74 Q111 78 114 87" fill="none" stroke="#124020" stroke-width="5.5" stroke-linecap="round"/>
+        <circle cx="110" cy="69" r="4" fill="#0a2010"/>
+        <circle cx="114" cy="87" r="4" fill="#0a2010"/>
+        <circle cx="46" cy="58" r="10" fill="#f4f2ee" opacity="0.88"/>
+        <circle cx="48" cy="57" r="6.5" fill="#0a100a"/>
+        <circle cx="50" cy="55" r="2" fill="#f4f2ee" opacity="0.65"/>
+        <circle cx="74" cy="56" r="11" fill="#c47820"/>
+        <circle cx="74" cy="56" r="6" fill="#1a0e00"/>
+        <circle cx="72" cy="53" r="2.5" fill="#f0a83c" opacity="0.55"/>
+        <circle cx="69" cy="51" r="1.5" fill="#fff" opacity="0.4"/>
+        <path d="M71 34 Q78 20 82 12" fill="none" stroke="#22633a" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="83" cy="10" r="4" fill="#d4882a" opacity="0.85"/>
+        <circle cx="83" cy="10" r="1.8" fill="#c47820"/>
+        <ellipse cx="36" cy="46" rx="5" ry="6.5" fill="#b8d8f0" opacity="0.4"/>
+        <ellipse cx="34" cy="43" rx="2.2" ry="3" fill="#fff" opacity="0.3"/>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<!-- TRUST BAR -->
+<div class="trust">
+  <span class="trust-label">Built for</span>
+  <div class="trust-items">
+    <span class="trust-item">Smallholder farmers</span>
+    <span class="trust-item">Agronomists</span>
+    <span class="trust-item">Crop insurers</span>
+    <span class="trust-item">Agri-lenders</span>
+    <span class="trust-item">Supply chain teams</span>
+    <span class="trust-item">Carbon markets</span>
+  </div>
+</div>
+
+<!-- WHAT IT IS -->
+<section id="what">
+  <div class="wrap">
+    <div class="what-grid">
+      <div>
+        <span class="label">Technology</span>
+        <h2 class="h2">A sensor that belongs in the field</h2>
+        <p class="body-text">Terrin is a small, solar-powered device that moves between crop rows. It reads temperature, humidity, and soil moisture continuously. Its camera scans leaves for early signs of disease as it works through the field.</p>
+        <p class="body-text">It runs on sunlight. It connects over WiFi. When something changes — a temperature spike, soil drying out, a leaf that looks wrong — it tells you through WhatsApp. No app. No login. No behaviour change.</p>
+        <p class="body-text">Every reading is logged and builds over seasons. A growing record of how your particular field behaves: which rows dry fastest, when disease risk peaks, what normal looks like.</p>
+      </div>
+      <div class="diag" role="img" aria-label="Cross-section diagram showing Terrin sensor in the topsoil layer with roots below">
+        <div class="dl sky"></div>
+        <div class="dl grs"></div>
+        <div class="dl top"></div>
+        <div class="dl sub"></div>
+        <div class="dl clay"></div>
+        <div class="dl bed"></div>
+        <span class="dl-lbl sky">Sky</span>
+        <span class="dl-lbl grs">Surface</span>
+        <span class="dl-lbl top">Topsoil — Terrin operates here</span>
+        <span class="dl-lbl sub">Subsoil</span>
+        <span class="dl-lbl clay">Clay</span>
+        <span class="dl-lbl bed">Bedrock</span>
+        <div class="diag-roots">
+          <svg width="100%" height="100%" viewBox="0 0 300 200" preserveAspectRatio="none" fill="none" aria-hidden="true">
+            <path d="M90 0Q88 50 86 100Q83 150 85 200" stroke="#22633a" stroke-width="1.5" stroke-linecap="round" opacity=".3"/>
+            <path d="M150 0Q150 52 149 100Q148 152 149 200" stroke="#22633a" stroke-width="2" stroke-linecap="round" opacity=".4"/>
+            <path d="M149 80Q130 110 122 150" stroke="#22633a" stroke-width="1" stroke-linecap="round" opacity=".22"/>
+            <path d="M149 80Q168 108 174 145" stroke="#22633a" stroke-width="1" stroke-linecap="round" opacity=".22"/>
+            <path d="M210 0Q212 50 214 100Q216 150 214 200" stroke="#22633a" stroke-width="1.5" stroke-linecap="round" opacity=".3"/>
+          </svg>
+        </div>
+        <div class="diag-sensor"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="how-bg">
+  <div class="wrap">
+    <span class="label" style="color:rgba(240,168,60,.6)">Process</span>
+    <h2 class="h2" style="color:#fff;max-width:480px">From field to phone — without any app</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-n">01</div>
+        <div class="step-t">Self-powered</div>
+        <div class="step-b">A solar panel keeps the battery charged through the day. In typical field conditions Terrin runs indefinitely without any intervention.</div>
+      </div>
+      <div class="step">
+        <div class="step-n">02</div>
+        <div class="step-t">Connects over WiFi</div>
+        <div class="step-b">Uses a hotspot from your existing mobile phone. No router, no broadband, no infrastructure in the field required.</div>
+      </div>
+      <div class="step">
+        <div class="step-n">03</div>
+        <div class="step-t">Monitors continuously</div>
+        <div class="step-b">Temperature, humidity, and soil moisture logged every 30 minutes. The camera scans leaves for colour changes and texture anomalies that precede visible crop stress.</div>
+      </div>
+      <div class="step">
+        <div class="step-n">04</div>
+        <div class="step-t">Delivers to WhatsApp</div>
+        <div class="step-b">When something requires attention, a message arrives with a photo, the row number, and a plain description. Supported by SMS and weekly PDF reports.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ALERTS -->
+<section id="alerts">
+  <div class="wrap">
+    <span class="label">Delivery</span>
+    <h2 class="h2">Intelligence through the channels you already use</h2>
+    <div class="alert-grid">
+      <div class="alert-text">
+        <h3>A message, not a dashboard.</h3>
+        <p>When Terrin identifies something, a WhatsApp message arrives — a photo from the device camera, the row and plant location, what was detected, and what it might indicate. The farmer decides what to do.</p>
+        <p>For agronomists managing multiple farms, all alerts consolidate into a single view — one line per farm, status at a glance. No setup, no training.</p>
+        <p>Once a week, Terrin generates a one-page field report: temperature range, soil moisture trend, any anomalies flagged. Delivered to WhatsApp as a PDF. Printable. Suitable for farm visits or client briefings.</p>
+        <p style="margin-top:20px;font-size:12px;color:#a0a090;line-height:1.7">API access available for insurers, lenders, and enterprise integrations. Timestamped, geotagged, verifiable.</p>
+      </div>
+      <div class="phone-wrap">
+        <div class="phone" role="img" aria-label="WhatsApp alert example from Terrin showing leaf disease detection with photo and location">
+          <div class="ph-hdr">
+            <div class="ph-av">
+              <svg width="28" height="28" viewBox="0 0 120 120" fill="none">
+                <ellipse cx="60" cy="68" rx="38" ry="30" fill="#1a4a28"/>
+                <ellipse cx="61" cy="73" rx="24" ry="18" fill="#22633a"/>
+                <path d="M34 56 Q46 40 60 36 Q74 40 86 56" fill="#0f2a18"/>
+                <path d="M60 36 Q52 22 44 18 Q50 26 56 30 Q52 20 60 16 Q68 20 64 30 Q70 26 76 18 Q68 22 60 36Z" fill="#22633a"/>
+                <path d="M24 60 Q14 64 10 71" fill="none" stroke="#124020" stroke-width="5.5" stroke-linecap="round"/>
+                <path d="M96 60 Q106 64 110 71" fill="none" stroke="#124020" stroke-width="5.5" stroke-linecap="round"/>
+                <circle cx="46" cy="60" r="10" fill="#f4f2ee" opacity="0.88"/>
+                <circle cx="48" cy="59" r="6.5" fill="#0a100a"/>
+                <circle cx="74" cy="58" r="11" fill="#c47820"/>
+                <circle cx="74" cy="58" r="6" fill="#1a0e00"/>
+                <circle cx="72" cy="55" r="2.5" fill="#f0a83c" opacity="0.55"/>
+                <path d="M71 36 Q78 22 82 14" fill="none" stroke="#22633a" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="83" cy="12" r="4" fill="#d4882a" opacity="0.9"/>
+              </svg>
+            </div>
+            <div>
+              <div class="ph-name">Terrin</div>
+              <div class="ph-sub">Field alert</div>
+            </div>
+          </div>
+          <div class="bimg" aria-hidden="true">
+            <svg width="80" height="60" viewBox="0 0 80 60" fill="none">
+              <ellipse cx="40" cy="30" rx="28" ry="20" fill="#1a4a28" opacity=".85"/>
+              <path d="M40 10Q40 30 40 50" stroke="#c8e6ca" stroke-width="1.2" opacity=".4" stroke-linecap="round"/>
+              <path d="M40 18Q52 22 50 28Q48 34 40 30" stroke="#c8e6ca" stroke-width=".8" opacity=".28" stroke-linecap="round" fill="none"/>
+              <path d="M40 18Q28 22 30 28Q32 34 40 30" stroke="#c8e6ca" stroke-width=".8" opacity=".28" stroke-linecap="round" fill="none"/>
+              <circle cx="52" cy="24" r="4.5" fill="#5a2008" opacity=".85"/>
+              <circle cx="52" cy="24" r="2" fill="#d4882a" opacity=".7"/>
+              <text x="40" y="57" text-anchor="middle" font-size="8" fill="rgba(200,230,202,.38)" font-family="sans-serif">Row 4 · Plant 7</text>
+            </svg>
+          </div>
+          <div style="font-size:10px;color:#8696a0;padding:2px 4px 8px;font-family:sans-serif">6:42 AM</div>
+          <div class="bubble">
+            <div class="bt">
+              <strong>Row 4, plant 7</strong><br><br>
+              Brown spot on upper leaf surface. Consistent with early blight. Recommend inspection this morning.<br><br>
+              34°C &nbsp;·&nbsp; 71% humidity &nbsp;·&nbsp; Soil 28%
+            </div>
+            <div class="btime">6:42 AM ✓✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DATA -->
+<section class="data-bg">
+  <div class="wrap">
+    <span class="label">What it records</span>
+    <h2 class="h2">A continuous picture of your field</h2>
+    <p class="body-text">Every reading is stored. Over time, Terrin builds a detailed log — useful for planning, insurance evidence, agronomic decisions, and understanding why seasons differ.</p>
+    <div class="data-grid">
+      <div class="dc">
+        <div class="dc-l">Temperature</div>
+        <div class="dc-v">34.2</div>
+        <div class="dc-u">°C · topsoil level · 6:40 AM</div>
+        <div class="spark" aria-hidden="true">
+          <svg width="100%" height="28" viewBox="0 0 200 28" fill="none">
+            <polyline points="0,24 30,20 60,18 90,14 120,16 150,10 180,7 200,10" stroke="#d4882a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="dc">
+        <div class="dc-l">Humidity</div>
+        <div class="dc-v">71</div>
+        <div class="dc-u">% relative · 6:40 AM</div>
+        <div class="spark" aria-hidden="true">
+          <svg width="100%" height="28" viewBox="0 0 200 28" fill="none">
+            <polyline points="0,8 30,10 60,7 90,12 120,15 150,17 180,20 200,18" stroke="#22633a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="dc">
+        <div class="dc-l">Soil moisture</div>
+        <div class="dc-v">28</div>
+        <div class="dc-u">% volumetric · row 4</div>
+        <div class="spark" aria-hidden="true">
+          <svg width="100%" height="28" viewBox="0 0 200 28" fill="none">
+            <polyline points="0,6 30,9 60,13 90,17 120,20 150,22 180,25 200,25" stroke="#5a90b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="dc">
+        <div class="dc-l">Anomalies this week</div>
+        <div class="dc-v">2</div>
+        <div class="dc-u">leaf flags detected</div>
+        <div class="spark" aria-hidden="true">
+          <svg width="100%" height="28" viewBox="0 0 200 28" fill="none">
+            <rect x="18" y="18" width="14" height="10" rx="2" fill="rgba(212,136,42,.22)"/>
+            <rect x="56" y="22" width="14" height="6" rx="2" fill="rgba(212,136,42,.16)"/>
+            <rect x="94" y="14" width="14" height="14" rx="2" fill="rgba(212,136,42,.42)"/>
+            <rect x="132" y="20" width="14" height="8" rx="2" fill="rgba(212,136,42,.18)"/>
+            <rect x="170" y="12" width="14" height="16" rx="2" fill="rgba(212,136,42,.5)"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WAITLIST -->
+<section id="waitlist" class="wl-bg">
+  <div class="wrap">
+    <span class="label" style="color:rgba(255,255,255,.35)">Early access</span>
+    <h2 class="wl-h2">Currently in development.</h2>
+    <p class="wl-sub">If you're a farmer, agronomist, insurer, or organisation interested in early access or partnership, leave your email and we'll be in touch.</p>
+    <form class="wl-form" onsubmit="sub(event)" novalidate>
+      <input class="wl-in" type="email" id="wl-email" placeholder="your@email.com" required autocomplete="email" aria-label="Email address">
+      <button type="submit" class="wl-btn">Get in touch</button>
+    </form>
+    <p class="wl-note" id="wl-msg">No newsletters. A conversation when the time is right.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-left">
+    <svg width="22" height="22" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+      <ellipse cx="60" cy="66" rx="38" ry="30" fill="#1a4a28"/>
+      <ellipse cx="61" cy="71" rx="24" ry="18" fill="#22633a"/>
+      <path d="M34 54 Q46 38 60 34 Q74 38 86 54" fill="#0f2a18"/>
+      <path d="M60 34 Q52 20 44 16 Q50 24 56 28 Q52 18 60 14 Q68 18 64 28 Q70 24 76 16 Q68 20 60 34Z" fill="#22633a"/>
+      <path d="M24 58 Q14 62 10 69" fill="none" stroke="#124020" stroke-width="5.5" stroke-linecap="round"/>
+      <path d="M96 58 Q106 62 110 69" fill="none" stroke="#124020" stroke-width="5.5" stroke-linecap="round"/>
+      <circle cx="46" cy="58" r="10" fill="#f4f2ee" opacity="0.88"/>
+      <circle cx="48" cy="57" r="6.5" fill="#0a100a"/>
+      <circle cx="74" cy="56" r="11" fill="#c47820"/>
+      <circle cx="74" cy="56" r="6" fill="#1a0e00"/>
+      <path d="M71 34 Q78 20 82 12" fill="none" stroke="#22633a" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="83" cy="10" r="4" fill="#d4882a" opacity="0.9"/>
+    </svg>
+    <span class="f-word">Terrin</span>
+    <span class="f-sep">·</span>
+    <span class="f-tag">Farm Intelligence</span>
+  </div>
+  <div class="f-links">
+    <a href="mailto:raj@terrin.org" class="f-link">raj@terrin.org</a>
+    <a href="https://linkedin.com/in/rajalamuri" class="f-link" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+  <span class="f-copy">Terrin Ltd · London, UK · 2025</span>
+</footer>
+
+<script>
+function sub(e){
+  e.preventDefault();
+  const em=document.getElementById('wl-email').value;
+  if(!em)return;
+  const m=document.getElementById('wl-msg');
+  m.textContent="Noted — we'll reach out to "+em;
+  m.style.color='rgba(255,255,255,.5)';
+  e.target.style.opacity='.4';
+  e.target.style.pointerEvents='none';
+  // fetch('https://formspree.io/f/YOUR_ID',{method:'POST',body:JSON.stringify({email:em}),headers:{'Content-Type':'application/json'}})
+}
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t)t.scrollIntoView({behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>
