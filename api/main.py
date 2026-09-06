@@ -1,12 +1,10 @@
-import os
 from typing import Optional
 
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
-from api.db import init_db, insert_reading, fetch_readings
-
-DEVICE_API_KEY = os.environ.get("DEVICE_API_KEY")
+from api.auth import verify_device
+from api.db import init_db, insert_reading, fetch_readings, get_device
 
 app = FastAPI(title="Terrin Ingestion API")
 
@@ -18,7 +16,6 @@ def startup():
 
 class Reading(BaseModel):
     device_id: str
-    farm_id: str
     temp_c: float
     humidity: float = Field(ge=0, le=100)
     soil_moist: float = Field(ge=0, le=100)
@@ -32,11 +29,12 @@ def health():
 
 @app.post("/v1/readings", status_code=201)
 def create_reading(reading: Reading, x_device_key: Optional[str] = Header(None)):
-    if not DEVICE_API_KEY or x_device_key != DEVICE_API_KEY:
+    if not verify_device(reading.device_id, x_device_key):
         raise HTTPException(status_code=401, detail="invalid device key")
+    device = get_device(reading.device_id)
     reading_id = insert_reading(
         reading.device_id,
-        reading.farm_id,
+        device["farm_id"],
         reading.temp_c,
         reading.humidity,
         reading.soil_moist,
