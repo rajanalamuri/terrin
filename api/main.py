@@ -1,12 +1,23 @@
 from typing import Optional
 
 from fastapi import FastAPI, Header, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from api.auth import verify_device
 from api.db import init_db, insert_reading, fetch_readings, get_device
 
 app = FastAPI(title="Terrin Ingestion API")
+
+# GET /v1/readings has no auth (it's what the dashboard reads) and this API
+# isn't deployed anywhere yet, so wide-open CORS is fine for now; tighten to
+# the real dashboard origin once this is actually deployed.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")

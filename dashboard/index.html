@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terrin — Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><ellipse cx='60' cy='66' rx='38' ry='30' fill='%231a4a28'/><ellipse cx='61' cy='71' rx='24' ry='18' fill='%2322633a'/><path d='M34 54 Q46 38 60 34 Q74 38 86 54' fill='%230f2a18'/><path d='M60 34 Q52 20 44 16 Q50 24 56 28 Q52 18 60 14 Q68 18 64 28 Q70 24 76 16 Q68 20 60 34Z' fill='%2322633a'/><circle cx='46' cy='58' r='10' fill='%23f4f2ee' opacity='0.88'/><circle cx='74' cy='56' r='11' fill='%23c47820'/><circle cx='83' cy='10' r='4' fill='%23d4882a' opacity='0.9'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0f1a0f;
+  --ink2:#2a3a2a;
+  --leaf:#1a4a28;
+  --leaf2:#22633a;
+  --sensor:#d4882a;
+  --sensor2:#f0a83c;
+  --stone:#f4f2ee;
+  --stone2:#e8e4dc;
+  --stone3:#d8d2c6;
+  --mist:#f9f8f6;
+  --white:#ffffff;
+  --muted:#7a7a6e;
+  --muted2:#5a5a50;
+  --danger:#b23a3a;
+}
+*{box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--mist);color:var(--ink);font-size:15px;line-height:1.5;margin:0}
+header{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;border-bottom:1px solid var(--stone3);background:var(--white)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px}
+.brand svg{flex-shrink:0}
+.brand .tag{font-family:'Playfair Display',serif;font-weight:400;color:var(--muted)}
+.controls{display:flex;gap:10px;align-items:center}
+select,input{font-family:'Inter',sans-serif;font-size:14px;padding:8px 10px;border:1px solid var(--stone3);border-radius:6px;background:var(--white);color:var(--ink)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--stone3);display:inline-block;margin-right:6px}
+.status-dot.live{background:var(--leaf2)}
+.status-dot.down{background:var(--danger)}
+main{padding:28px 32px;max-width:1200px;margin:0 auto}
+.empty{padding:80px 20px;text-align:center;color:var(--muted)}
+.empty h2{font-family:'Playfair Display',serif;font-weight:400;color:var(--ink2);margin-bottom:8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.card{background:var(--white);border:1px solid var(--stone3);border-radius:10px;padding:16px 18px}
+.card .label{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:6px}
+.card .value{font-family:'Playfair Display',serif;font-size:30px;color:var(--ink)}
+.card .value small{font-size:14px;font-family:'Inter',sans-serif;color:var(--muted2)}
+.card.alert{border-color:var(--danger);background:#fbeeee}
+.card.alert .value{color:var(--danger)}
+.section-title{font-family:'Playfair Display',serif;font-weight:400;font-size:20px;margin:0 0 14px}
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-bottom:28px}
+.chart-card{background:var(--white);border:1px solid var(--stone3);border-radius:10px;padding:16px 18px}
+.chart-card .label{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:10px}
+canvas{width:100%;height:80px;display:block}
+table{width:100%;border-collapse:collapse;background:var(--white);border:1px solid var(--stone3);border-radius:10px;overflow:hidden}
+th,td{text-align:left;padding:10px 14px;font-size:13px;border-bottom:1px solid var(--stone2)}
+th{color:var(--muted);font-weight:500;text-transform:uppercase;font-size:11px;letter-spacing:.04em;background:var(--stone)}
+tr:last-child td{border-bottom:none}
+td.alert-cell{color:var(--danger);font-weight:600}
+.table-wrap{overflow-x:auto}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg width="22" height="22" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+      <ellipse cx="60" cy="66" rx="38" ry="30" fill="#1a4a28"/>
+      <ellipse cx="61" cy="71" rx="24" ry="18" fill="#22633a"/>
+      <path d="M34 54 Q46 38 60 34 Q74 38 86 54" fill="#0f2a18"/>
+      <circle cx="46" cy="58" r="10" fill="#f4f2ee" opacity="0.88"/>
+      <circle cx="74" cy="56" r="11" fill="#c47820"/>
+    </svg>
+    Terrin <span class="tag">· Dashboard</span>
+  </div>
+  <div class="controls">
+    <span id="status"><span class="status-dot"></span><span id="status-text">Connecting…</span></span>
+    <select id="farm-select"><option value="">All farms</option></select>
+    <select id="device-select"><option value="">All devices</option></select>
+    <input id="api-url" value="http://localhost:8000" title="Ingestion API base URL">
+  </div>
+</header>
+
+<main>
+  <div id="empty" class="empty" hidden>
+    <h2>No readings yet</h2>
+    <p>Once a device sends data to the ingestion API, it'll show up here.</p>
+  </div>
+
+  <div id="content" hidden>
+    <div class="cards" id="cards"></div>
+
+    <h3 class="section-title">Trends</h3>
+    <div class="chart-grid">
+      <div class="chart-card"><div class="label">Temperature (°C)</div><canvas id="chart-temp"></canvas></div>
+      <div class="chart-card"><div class="label">Humidity (%)</div><canvas id="chart-humidity"></canvas></div>
+      <div class="chart-card"><div class="label">Soil moisture (%)</div><canvas id="chart-soil"></canvas></div>
+    </div>
+
+    <h3 class="section-title">Recent readings</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Time</th><th>Device</th><th>Farm</th><th>Temp</th><th>Humidity</th><th>Soil</th><th>Alert</th></tr>
+        </thead>
+        <tbody id="readings-body"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script>
+const POLL_MS = 15000;
+let allReadings = [];
+
+function apiUrl() {
+  return document.getElementById('api-url').value.replace(/\/$/, '');
+}
+
+function setStatus(state, text) {
+  const dot = document.querySelector('#status .status-dot');
+  dot.className = 'status-dot ' + (state === 'live' ? 'live' : state === 'down' ? 'down' : '');
+  document.getElementById('status-text').textContent = text;
+}
+
+function populateFilterOptions(readings) {
+  const farmSel = document.getElementById('farm-select');
+  const deviceSel = document.getElementById('device-select');
+  const farms = [...new Set(readings.map(r => r.farm_id))].sort();
+  const devices = [...new Set(readings.map(r => r.device_id))].sort();
+  const keepSelected = (sel, values, label) => {
+    const current = sel.value;
+    sel.innerHTML = `<option value="">${label}</option>` + values.map(v => `<option value="${v}">${v}</option>`).join('');
+    if (values.includes(current)) sel.value = current;
+  };
+  keepSelected(farmSel, farms, 'All farms');
+  keepSelected(deviceSel, devices, 'All devices');
+}
+
+function latestPerDevice(readings) {
+  const byDevice = {};
+  for (const r of readings) {
+    if (!byDevice[r.device_id] || new Date(r.ts) > new Date(byDevice[r.device_id].ts)) {
+      byDevice[r.device_id] = r;
+    }
+  }
+  return Object.values(byDevice);
+}
+
+function renderCards(readings) {
+  const cards = document.getElementById('cards');
+  const latest = latestPerDevice(readings).sort((a, b) => a.device_id.localeCompare(b.device_id));
+  cards.innerHTML = latest.map(r => `
+    <div class="card ${r.alert ? 'alert' : ''}">
+      <div class="label">${r.device_id} · ${r.farm_id}</div>
+      <div class="value">${r.temp_c}<small>°C</small></div>
+      <div class="value" style="font-size:16px;margin-top:6px">
+        ${r.humidity}<small>% humidity</small> · ${r.soil_moist}<small>% soil</small>
+      </div>
+      ${r.alert ? `<div class="value" style="font-size:14px;margin-top:6px">⚠ ${r.alert}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderTable(readings) {
+  const body = document.getElementById('readings-body');
+  body.innerHTML = readings.slice(0, 50).map(r => `
+    <tr>
+      <td>${new Date(r.ts + 'Z').toLocaleString()}</td>
+      <td>${r.device_id}</td>
+      <td>${r.farm_id}</td>
+      <td>${r.temp_c}°C</td>
+      <td>${r.humidity}%</td>
+      <td>${r.soil_moist}%</td>
+      <td class="${r.alert ? 'alert-cell' : ''}">${r.alert || '—'}</td>
+    </tr>
+  `).join('');
+}
+
+function drawSparkline(canvasId, points, color) {
+  const canvas = document.getElementById(canvasId);
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth, h = canvas.clientHeight || 80;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+  if (points.length < 2) return;
+  const min = Math.min(...points), max = Math.max(...points);
+  const range = max - min || 1;
+  const pad = 6;
+  const stepX = (w - pad * 2) / (points.length - 1);
+  ctx.beginPath();
+  points.forEach((v, i) => {
+    const x = pad + i * stepX;
+    const y = h - pad - ((v - min) / range) * (h - pad * 2);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+}
+
+function renderCharts(readings) {
+  const chronological = [...readings].reverse();
+  drawSparkline('chart-temp', chronological.map(r => r.temp_c), '#d4882a');
+  drawSparkline('chart-humidity', chronological.map(r => r.humidity), '#22633a');
+  drawSparkline('chart-soil', chronological.map(r => r.soil_moist), '#1a4a28');
+}
+
+function render() {
+  const farm = document.getElementById('farm-select').value;
+  const device = document.getElementById('device-select').value;
+  const filtered = allReadings.filter(r =>
+    (!farm || r.farm_id === farm) && (!device || r.device_id === device)
+  );
+
+  document.getElementById('empty').hidden = allReadings.length > 0;
+  document.getElementById('content').hidden = allReadings.length === 0;
+  if (allReadings.length === 0) return;
+
+  renderCards(filtered);
+  renderTable(filtered);
+  renderCharts(filtered);
+}
+
+async function poll() {
+  try {
+    const res = await fetch(`${apiUrl()}/v1/readings?limit=500`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    allReadings = await res.json();
+    populateFilterOptions(allReadings);
+    setStatus('live', `Live · ${allReadings.length} readings`);
+    render();
+  } catch (err) {
+    setStatus('down', `Can't reach API (${err.message})`);
+  }
+}
+
+document.getElementById('farm-select').addEventListener('change', render);
+document.getElementById('device-select').addEventListener('change', render);
+document.getElementById('api-url').addEventListener('change', poll);
+window.addEventListener('resize', render);
+
+poll();
+setInterval(poll, POLL_MS);
+</script>
+</body>
+</html>
