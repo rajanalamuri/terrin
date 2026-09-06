@@ -4,6 +4,7 @@ from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from api.alerts import evaluate_thresholds, combine_alert
 from api.auth import verify_device
 from api.db import init_db, insert_reading, fetch_readings, get_device
 
@@ -30,7 +31,7 @@ class Reading(BaseModel):
     temp_c: float
     humidity: float = Field(ge=0, le=100)
     soil_moist: float = Field(ge=0, le=100)
-    alert: Optional[str] = None
+    device_alert: Optional[str] = None  # hardware-level condition reported by the device itself (e.g. sensor fault)
 
 
 @app.get("/health")
@@ -43,13 +44,15 @@ def create_reading(reading: Reading, x_device_key: Optional[str] = Header(None))
     if not verify_device(reading.device_id, x_device_key):
         raise HTTPException(status_code=401, detail="invalid device key")
     device = get_device(reading.device_id)
+    threshold_alert = evaluate_thresholds(reading.temp_c, reading.humidity, reading.soil_moist)
+    alert = combine_alert(threshold_alert, reading.device_alert)
     reading_id = insert_reading(
         reading.device_id,
         device["farm_id"],
         reading.temp_c,
         reading.humidity,
         reading.soil_moist,
-        reading.alert,
+        alert,
     )
     return {"id": reading_id}
 
